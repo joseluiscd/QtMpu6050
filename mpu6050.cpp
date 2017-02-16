@@ -47,6 +47,10 @@ void Mpu6050::start()
 
     //Set gyroscope to 250 deg
     i2c_smbus_write_byte_data(fd, MPU_GYRO_CONFIG, 0);
+
+    pollAccelerometer();
+    pollGyroscope();
+    pollTemperature();
 }
 
 void Mpu6050::pollAccelerometer()
