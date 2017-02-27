@@ -8,7 +8,7 @@
 #include <time.h>
 
 Mpu6050::Mpu6050()
-    :accelReading(), gyroReading(), tempReading()
+    :accelReading(), gyroReading(), tempReading(), fd(-1)
 {
 }
 
@@ -26,6 +26,11 @@ quint64 produceTimestamp()
 
 void Mpu6050::start()
 {
+    if(fd != -1){
+        return;
+    }
+
+    printf("Initializing sensor...");
     //Copied from https://github.com/randrews7/rpi-mpu6050
 
     if ((fd = open(MPU_I2C, O_RDWR)) < 0) {
@@ -38,8 +43,7 @@ void Mpu6050::start()
             exit(1);
     }
 
-    int8_t power = i2c_smbus_read_byte_data(fd, MPU_POWER1);
-    i2c_smbus_write_byte_data(fd, MPU_POWER1, ~(1 << 6) & power);
+    i2c_smbus_write_byte_data(fd, MPU_POWER1, 0);
 
     //https://github.com/Tijndagamer/mpu6050/
     //Set accelerometer to 2G
@@ -53,12 +57,28 @@ void Mpu6050::start()
     pollTemperature();
 }
 
+QAccelerometerReading *Mpu6050::getAccelerometerReading()
+{
+    return &accelReading;
+}
+
+QGyroscopeReading *Mpu6050::getGyroscopeReading()
+{
+    return &gyroReading;
+}
+
+QAmbientTemperatureReading *Mpu6050::getTemperatureReading()
+{
+    return &tempReading;
+}
+
 void Mpu6050::pollAccelerometer()
 {
-    int16_t xaccel = i2c_smbus_read_word_data(fd, MPU_ACCEL_XOUT);
-    int16_t yaccel = i2c_smbus_read_word_data(fd, MPU_ACCEL_YOUT);
-    int16_t zaccel = i2c_smbus_read_word_data(fd, MPU_ACCEL_ZOUT);
+    int16_t xaccel = readWord(MPU_ACCEL_XOUT);
+    int16_t yaccel = readWord(MPU_ACCEL_YOUT);
+    int16_t zaccel = readWord(MPU_ACCEL_ZOUT);
 
+    printf("Poll accelerometer\n");
 
     accelReading.setX(xaccel * GRAVITY / ACCEL_SCALE);
     accelReading.setY(yaccel * GRAVITY / ACCEL_SCALE);
@@ -69,9 +89,9 @@ void Mpu6050::pollAccelerometer()
 
 void Mpu6050::pollGyroscope()
 {
-    int16_t xgyro = i2c_smbus_read_word_data(fd, MPU_GYRO_XOUT);
-    int16_t ygyro = i2c_smbus_read_word_data(fd, MPU_GYRO_YOUT);
-    int16_t zgyro = i2c_smbus_read_word_data(fd, MPU_GYRO_ZOUT);
+    int16_t xgyro = readWord(MPU_GYRO_XOUT);
+    int16_t ygyro = readWord(MPU_GYRO_YOUT);
+    int16_t zgyro = readWord(MPU_GYRO_ZOUT);
 
 
     gyroReading.setX(xgyro / GYRO_SCALE);
@@ -87,4 +107,14 @@ void Mpu6050::pollTemperature()
 
     tempReading.setTemperature(temp / 340.0f + 36.53f);
     tempReading.setTimestamp(produceTimestamp());
+}
+
+int16_t Mpu6050::readWord(unsigned char address)
+{
+    int16_t high = i2c_smbus_read_byte_data(fd, address);
+    int16_t low =  i2c_smbus_read_byte_data(fd, address+1);
+
+    int16_t value = (high << 8) + low;
+    return value;
+
 }

@@ -1,7 +1,6 @@
 #ifndef MPU6050_H
 #define MPU6050_H
 
-#include <QObject>
 #include <QAccelerometer>
 #include <QGyroscope>
 #include <QAmbientTemperatureSensor>
@@ -40,21 +39,24 @@ public:
     void start();
     void end();
 
-    QAccelerometerReading* getAccelerometerReading();
-    QGyroscopeReading* getGyroscopeReading();
-    QAmbientTemperatureReading* getTemperatureReading();
+    QAccelerometerReading *getAccelerometerReading();
+    QGyroscopeReading *getGyroscopeReading();
+    QAmbientTemperatureReading *getTemperatureReading();
 
+public slots:
     void pollAccelerometer();
     void pollGyroscope();
     void pollTemperature();
+
 
 private:
     QAccelerometerReading accelReading;
     QGyroscopeReading gyroReading;
     QAmbientTemperatureReading tempReading;
 
-    int fd;
+    int16_t readWord(unsigned char address);
 
+    int fd;
 
 };
 

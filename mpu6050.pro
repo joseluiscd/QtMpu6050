@@ -13,14 +13,20 @@ PLUGIN_TYPE = sensors
 
 DESTDIR = plugins/sensors
 
-SOURCES += mpu6050.cpp
+SOURCES += mpu6050.cpp \
+    plugin.cpp \
+    timersensorbackend.cpp \
+    backends.cpp
 
 HEADERS += \
-    mpu6050.h
+    mpu6050.h \
+    plugin.h \
+    timersensorbackend.h \
+    backends.h
 
 DISTFILES += mpu6050.json
 
 unix {
-    target.path = /usr/lib
+    target.path = /opt/qt5pi/plugins/sensors
     INSTALLS += target
 }
