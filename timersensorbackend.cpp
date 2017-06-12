@@ -10,6 +10,8 @@ TimerSensorBackend::TimerSensorBackend(Mpu6050 *d, QSensor *sensor, QObject *par
     addOutputRange(-20, 20, 0.09);
 
     connect(timer, SIGNAL(timeout()), driver, SLOT(pollAccelerometer()));
+    connect(timer, SIGNAL(timeout()), driver, SLOT(pollGyroscope()));
+    connect(timer, SIGNAL(timeout()), driver, SLOT(pollTemperature()));
     connect(timer, SIGNAL(timeout()), this, SLOT(checkReading()));
 }
 

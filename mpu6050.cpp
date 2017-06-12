@@ -78,8 +78,6 @@ void Mpu6050::pollAccelerometer()
     int16_t yaccel = readWord(MPU_ACCEL_YOUT);
     int16_t zaccel = readWord(MPU_ACCEL_ZOUT);
 
-    printf("Poll accelerometer\n");
-
     accelReading.setX(xaccel * GRAVITY / ACCEL_SCALE);
     accelReading.setY(yaccel * GRAVITY / ACCEL_SCALE);
     accelReading.setZ(zaccel * GRAVITY / ACCEL_SCALE);
@@ -92,7 +90,6 @@ void Mpu6050::pollGyroscope()
     int16_t xgyro = readWord(MPU_GYRO_XOUT);
     int16_t ygyro = readWord(MPU_GYRO_YOUT);
     int16_t zgyro = readWord(MPU_GYRO_ZOUT);
-
 
     gyroReading.setX(xgyro / GYRO_SCALE);
     gyroReading.setY(ygyro / GYRO_SCALE);
